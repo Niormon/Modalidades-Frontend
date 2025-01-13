@@ -10,9 +10,28 @@
 <body>
     <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1 class="mb-4">Welcome to the Home Page</h1>
-                <p class="lead">This is the initial page after login. Customize it as needed!</p>
+            <div class="col-md-12">
+                <h1 class="mb-4 text-center">Welcome to the Home Page</h1>
+                <div class="mb-4">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by student name, student code, professor name, professor ID, or institution..." />
+                </div>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Modalidad</th>
+                            <th>Estudiante</th>
+                            <th>Nombre Estudiante</th>
+                            <th>Profesor</th>
+                            <th>Nombre Profesor</th>
+                            <th>Modalidad Activa</th>
+                            <th>Graduado</th>
+                            <th>Institución</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Los datos se llenarán aquí dinámicamente -->
+                    </tbody>
+                </table>
                 <button id="logoutButton" class="btn btn-danger mt-3">Logout</button>
             </div>
         </div>
@@ -21,17 +40,18 @@
     <script>
         console.log("Base API URL:", window.CONFIG?.API_URL || "CONFIG is undefined");
 
-        async function verifyToken() {
-            const token = sessionStorage.getItem('token');
-            if (!token) {
-                console.warn('No token found in sessionStorage');
-                redirectToLogin('You are not logged in! Redirecting to login page.');
-                return;
-            }
+        // Fetch and display tracking modes in the table
+        let allTrackingModes = []; // Guardar todos los datos para filtrar
 
+        async function fetchTrackingModes() {
             try {
-                console.log('Verifying token with backend...');
-                const response = await fetch(`${window.CONFIG.API_URL}/verify-token/`, {
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    redirectToLogin('Session expired or invalid. Redirecting to login.');
+                    return;
+                }
+
+                const response = await fetch(`${window.CONFIG.API_URL}/tracking_modes/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -39,29 +59,59 @@
                 });
 
                 if (!response.ok) {
-                    console.error('Token verification failed, response:', response.status);
-                    throw new Error('Session invalid or expired');
+                    throw new Error(`Failed to fetch tracking modes. Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log('Token is valid:', data);
+                console.log('Tracking Modes Data:', data);
 
-                const username = data.payload?.sub || 'User';
-                document.querySelector('h1').textContent = `Welcome, ${username}!`;
+                allTrackingModes = data; // Guardar los datos para filtrar
+                displayResults(allTrackingModes); // Mostrar los datos en la tabla
             } catch (error) {
-                console.error('Error during token verification:', error.message);
-                redirectToLogin('Session expired or invalid. Redirecting to login.');
+                console.error('Error fetching tracking modes:', error.message);
             }
         }
 
-        function redirectToLogin(message) {
-            if (message) alert(message);
-            sessionStorage.removeItem('token');
-            window.location.href = '/index.html';
+        // Mostrar resultados en la tabla
+        function displayResults(results) {
+            const tableBody = document.getElementById('resultsTableBody');
+            tableBody.innerHTML = ''; // Limpiar la tabla anterior
+
+            if (results.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No results found</td></tr>';
+                return;
+            }
+
+            results.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.modality?.modalidad || 'N/A'}</td>
+                    <td>${item.student?.codigo || 'N/A'}</td>
+                    <td>${item.student?.nombre || 'N/A'}</td>
+                    <td>${item.teacher?.cedula || 'N/A'}</td>
+                    <td>${item.teacher?.nombre || 'N/A'}</td>
+                    <td>${item.modalidad_grado_activa ? '✓' : '✗'}</td>
+                    <td>${item.student?.estudiante_graduado ? '✓' : '✗'}</td>
+                    <td>${item.institution?.nombre || 'N/A'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
 
-        verifyToken();
+        // Función de búsqueda
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            const query = event.target.value.toLowerCase();
+            const filteredResults = allTrackingModes.filter(item =>
+                item.student?.nombre.toLowerCase().includes(query) || // Nombre del estudiante
+                item.student?.codigo.toLowerCase().includes(query) || // Código del estudiante
+                item.teacher?.nombre.toLowerCase().includes(query) || // Nombre del profesor
+                item.teacher?.cedula.toLowerCase().includes(query) || // Cédula del profesor
+                item.institution?.nombre.toLowerCase().includes(query) // Nombre de la institución
+            );
+            displayResults(filteredResults);
+        });
 
+        // Función de logout
         document.getElementById('logoutButton').addEventListener('click', async () => {
             const token = sessionStorage.getItem('token');
             try {
@@ -85,6 +135,48 @@
                 console.error(error);
             }
         });
+
+        // Redirigir si no hay token o es inválido
+        function redirectToLogin(message) {
+            if (message) alert(message);
+            sessionStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+
+        // Verificar token y cargar datos al cargar la página
+        async function verifyTokenAndFetchData() {
+            const token = sessionStorage.getItem('token');
+            if (!token) {
+                console.warn('No token found in sessionStorage');
+                redirectToLogin('Session expired or invalid. Redirecting to login.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${window.CONFIG.API_URL}/verify-token/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Invalid or expired token');
+                }
+
+                const data = await response.json();
+                console.log('Token verification successful:', data);
+
+                // Llamar a la función para obtener los datos
+                await fetchTrackingModes();
+            } catch (error) {
+                console.error('Token verification failed:', error.message);
+                redirectToLogin('Session expired or invalid. Redirecting to login.');
+            }
+        }
+
+        // Llamar a verifyTokenAndFetchData al cargar la página
+        verifyTokenAndFetchData();
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
