@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="config.js"></script> <!-- Cargar config.js sin defer -->
+    <script src="config.js"></script>
 </head>
 <body>
     <div class="container mt-5">
@@ -13,7 +13,18 @@
             <div class="col-md-12">
                 <h1 class="mb-4 text-center">Welcome to the Home Page</h1>
                 <div class="mb-4">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search by student name, student code, professor name, professor ID, or institution..." />
+                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by student name, student code, professor name, professor ID, or institution..." />
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button id="filterGraduated" class="btn btn-outline-success filter-btn">Show Graduated</button>
+                            <button id="filterNotGraduated" class="btn btn-outline-danger filter-btn">Show Not Graduated</button>
+                        </div>
+                        <div>
+                            <button id="filterActive" class="btn btn-outline-primary filter-btn">Show Active Modalities</button>
+                            <button id="filterInactive" class="btn btn-outline-secondary filter-btn">Show Inactive Modalities</button>
+                        </div>
+                        <button id="clearFilters" class="btn btn-warning">Clear Filters</button>
+                    </div>
                 </div>
                 <table class="table table-bordered">
                     <thead class="table-light">
@@ -43,23 +54,16 @@
     </div>
 
     <script>
-        console.log("Base API URL:", window.CONFIG?.API_URL || "CONFIG is undefined");
-
-        // Variables globales para datos y paginación
         let allTrackingModes = [];
         let filteredTrackingModes = [];
         const itemsPerPage = 20;
         let currentPage = 1;
+        let isGraduatedFilterActive = false;
+        let isNotGraduatedFilterActive = false;
 
-        // Fetch and display tracking modes in the table
         async function fetchTrackingModes() {
             try {
                 const token = sessionStorage.getItem('token');
-                if (!token) {
-                    redirectToLogin('Session expired or invalid. Redirecting to login.');
-                    return;
-                }
-
                 const response = await fetch(`${window.CONFIG.API_URL}/tracking_modes/`, {
                     method: 'GET',
                     headers: {
@@ -71,21 +75,36 @@
                     throw new Error(`Failed to fetch tracking modes. Status: ${response.status}`);
                 }
 
-                const data = await response.json();
-                console.log('Tracking Modes Data:', data);
-
-                allTrackingModes = data;
-                filteredTrackingModes = data; // Inicialmente, mostrar todos los datos
-                renderPage(); // Renderizar la primera página
+                allTrackingModes = await response.json();
+                filteredTrackingModes = allTrackingModes;
+                renderPage();
             } catch (error) {
                 console.error('Error fetching tracking modes:', error.message);
             }
         }
 
-        // Mostrar resultados en la tabla según la página actual
+        function applyFilters() {
+            let results = [...allTrackingModes];
+
+            if (isGraduatedFilterActive) {
+                results = results.filter(item => item.student?.estudiante_graduado);
+            } else if (isNotGraduatedFilterActive) {
+                results = results.filter(item => !item.student?.estudiante_graduado);
+            }
+
+            if (document.getElementById('filterActive').classList.contains('active')) {
+                results = results.filter(item => item.modalidad_grado_activa);
+            } else if (document.getElementById('filterInactive').classList.contains('active')) {
+                results = results.filter(item => !item.modalidad_grado_activa);
+            }
+
+            filteredTrackingModes = results;
+            currentPage = 1;
+            renderPage();
+        }
+
         function renderPage() {
             const tableBody = document.getElementById('resultsTableBody');
-            const paginationControls = document.getElementById('paginationControls');
             tableBody.innerHTML = '';
 
             const startIndex = (currentPage - 1) * itemsPerPage;
@@ -114,7 +133,6 @@
             renderPaginationControls();
         }
 
-        // Generar controles de paginación
         function renderPaginationControls() {
             const paginationControls = document.getElementById('paginationControls');
             paginationControls.innerHTML = '';
@@ -133,58 +151,58 @@
             }
         }
 
-        // Función de búsqueda con paginación
-        document.getElementById('searchInput').addEventListener('input', (event) => {
-            const query = event.target.value.toLowerCase();
-            filteredTrackingModes = allTrackingModes.filter(item =>
-                item.student?.nombre.toLowerCase().includes(query) ||
-                item.student?.codigo.toLowerCase().includes(query) ||
-                item.teacher?.nombre.toLowerCase().includes(query) ||
-                item.teacher?.cedula.toLowerCase().includes(query) ||
-                item.institution?.nombre.toLowerCase().includes(query)
-            );
-            currentPage = 1; // Resetear a la primera página
+        function setActiveButton(button) {
+            if (button.id === 'filterGraduated') {
+                isNotGraduatedFilterActive = false;
+                document.getElementById('filterNotGraduated').classList.remove('active');
+            } else if (button.id === 'filterNotGraduated') {
+                isGraduatedFilterActive = false;
+                document.getElementById('filterGraduated').classList.remove('active');
+            } else if (button.id === 'filterActive') {
+                document.getElementById('filterInactive').classList.remove('active');
+            } else if (button.id === 'filterInactive') {
+                document.getElementById('filterActive').classList.remove('active');
+            }
+
+            button.classList.toggle('active');
+        }
+
+        document.getElementById('filterGraduated').addEventListener('click', (event) => {
+            isGraduatedFilterActive = !isGraduatedFilterActive;
+            setActiveButton(event.target);
+            applyFilters();
+        });
+
+        document.getElementById('filterNotGraduated').addEventListener('click', (event) => {
+            isNotGraduatedFilterActive = !isNotGraduatedFilterActive;
+            setActiveButton(event.target);
+            applyFilters();
+        });
+
+        document.getElementById('filterActive').addEventListener('click', (event) => {
+            setActiveButton(event.target);
+            applyFilters();
+        });
+
+        document.getElementById('filterInactive').addEventListener('click', (event) => {
+            setActiveButton(event.target);
+            applyFilters();
+        });
+
+        document.getElementById('clearFilters').addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            isGraduatedFilterActive = false;
+            isNotGraduatedFilterActive = false;
+            filteredTrackingModes = allTrackingModes;
+            currentPage = 1;
             renderPage();
         });
 
-        // Función de logout
-        document.getElementById('logoutButton').addEventListener('click', async () => {
-            const token = sessionStorage.getItem('token');
-            try {
-                const response = await fetch(`${window.CONFIG.API_URL}/logout/`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Logout failed');
-                }
-
-                sessionStorage.removeItem('token');
-                alert('You have been logged out!');
-                window.location.href = '/index.html';
-            } catch (error) {
-                alert('An error occurred during logout.');
-                console.error(error);
-            }
-        });
-
-        // Redirigir si no hay token o es inválido
-        function redirectToLogin(message) {
-            if (message) alert(message);
-            sessionStorage.removeItem('token');
-            window.location.href = '/index.html';
-        }
-
-        // Verificar token y cargar datos al cargar la página
         async function verifyTokenAndFetchData() {
             const token = sessionStorage.getItem('token');
             if (!token) {
-                console.warn('No token found in sessionStorage');
-                redirectToLogin('Session expired or invalid. Redirecting to login.');
+                alert('Session expired or invalid. Redirecting to login.');
+                window.location.href = '/index.html';
                 return;
             }
 
@@ -200,18 +218,14 @@
                     throw new Error('Invalid or expired token');
                 }
 
-                const data = await response.json();
-                console.log('Token verification successful:', data);
-
-                // Llamar a la función para obtener los datos
-                await fetchTrackingModes();
+                await response.json();
+                fetchTrackingModes();
             } catch (error) {
-                console.error('Token verification failed:', error.message);
-                redirectToLogin('Session expired or invalid. Redirecting to login.');
+                alert('Session expired or invalid. Redirecting to login.');
+                window.location.href = '/index.html';
             }
         }
 
-        // Llamar a verifyTokenAndFetchData al cargar la página
         verifyTokenAndFetchData();
     </script>
 
