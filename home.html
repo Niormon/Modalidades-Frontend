@@ -32,6 +32,11 @@
                         <!-- Los datos se llenarán aquí dinámicamente -->
                     </tbody>
                 </table>
+                <nav>
+                    <ul class="pagination justify-content-center" id="paginationControls">
+                        <!-- Controles de paginación se generan dinámicamente -->
+                    </ul>
+                </nav>
                 <button id="logoutButton" class="btn btn-danger mt-3">Logout</button>
             </div>
         </div>
@@ -40,9 +45,13 @@
     <script>
         console.log("Base API URL:", window.CONFIG?.API_URL || "CONFIG is undefined");
 
-        // Fetch and display tracking modes in the table
-        let allTrackingModes = []; // Guardar todos los datos para filtrar
+        // Variables globales para datos y paginación
+        let allTrackingModes = [];
+        let filteredTrackingModes = [];
+        const itemsPerPage = 20;
+        let currentPage = 1;
 
+        // Fetch and display tracking modes in the table
         async function fetchTrackingModes() {
             try {
                 const token = sessionStorage.getItem('token');
@@ -65,50 +74,77 @@
                 const data = await response.json();
                 console.log('Tracking Modes Data:', data);
 
-                allTrackingModes = data; // Guardar los datos para filtrar
-                displayResults(allTrackingModes); // Mostrar los datos en la tabla
+                allTrackingModes = data;
+                filteredTrackingModes = data; // Inicialmente, mostrar todos los datos
+                renderPage(); // Renderizar la primera página
             } catch (error) {
                 console.error('Error fetching tracking modes:', error.message);
             }
         }
 
-        // Mostrar resultados en la tabla
-        function displayResults(results) {
+        // Mostrar resultados en la tabla según la página actual
+        function renderPage() {
             const tableBody = document.getElementById('resultsTableBody');
-            tableBody.innerHTML = ''; // Limpiar la tabla anterior
+            const paginationControls = document.getElementById('paginationControls');
+            tableBody.innerHTML = '';
 
-            if (results.length === 0) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredTrackingModes.slice(startIndex, endIndex);
+
+            if (currentItems.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No results found</td></tr>';
-                return;
+            } else {
+                currentItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.modality?.modalidad || 'N/A'}</td>
+                        <td>${item.student?.codigo || 'N/A'}</td>
+                        <td>${item.student?.nombre || 'N/A'}</td>
+                        <td>${item.teacher?.cedula || 'N/A'}</td>
+                        <td>${item.teacher?.nombre || 'N/A'}</td>
+                        <td>${item.modalidad_grado_activa ? '✓' : '✗'}</td>
+                        <td>${item.student?.estudiante_graduado ? '✓' : '✗'}</td>
+                        <td>${item.institution?.nombre || 'N/A'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             }
 
-            results.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.modality?.modalidad || 'N/A'}</td>
-                    <td>${item.student?.codigo || 'N/A'}</td>
-                    <td>${item.student?.nombre || 'N/A'}</td>
-                    <td>${item.teacher?.cedula || 'N/A'}</td>
-                    <td>${item.teacher?.nombre || 'N/A'}</td>
-                    <td>${item.modalidad_grado_activa ? '✓' : '✗'}</td>
-                    <td>${item.student?.estudiante_graduado ? '✓' : '✗'}</td>
-                    <td>${item.institution?.nombre || 'N/A'}</td>
-                `;
-                tableBody.appendChild(row);
-            });
+            renderPaginationControls();
         }
 
-        // Función de búsqueda
+        // Generar controles de paginación
+        function renderPaginationControls() {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredTrackingModes.length / itemsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageItem.addEventListener('click', () => {
+                    currentPage = i;
+                    renderPage();
+                });
+                paginationControls.appendChild(pageItem);
+            }
+        }
+
+        // Función de búsqueda con paginación
         document.getElementById('searchInput').addEventListener('input', (event) => {
             const query = event.target.value.toLowerCase();
-            const filteredResults = allTrackingModes.filter(item =>
-                item.student?.nombre.toLowerCase().includes(query) || // Nombre del estudiante
-                item.student?.codigo.toLowerCase().includes(query) || // Código del estudiante
-                item.teacher?.nombre.toLowerCase().includes(query) || // Nombre del profesor
-                item.teacher?.cedula.toLowerCase().includes(query) || // Cédula del profesor
-                item.institution?.nombre.toLowerCase().includes(query) // Nombre de la institución
+            filteredTrackingModes = allTrackingModes.filter(item =>
+                item.student?.nombre.toLowerCase().includes(query) ||
+                item.student?.codigo.toLowerCase().includes(query) ||
+                item.teacher?.nombre.toLowerCase().includes(query) ||
+                item.teacher?.cedula.toLowerCase().includes(query) ||
+                item.institution?.nombre.toLowerCase().includes(query)
             );
-            displayResults(filteredResults);
+            currentPage = 1; // Resetear a la primera página
+            renderPage();
         });
 
         // Función de logout
