@@ -17,6 +17,9 @@
                 <div id="teacherDetails">
                     <!-- Detalles del profesor se cargarán aquí dinámicamente -->
                 </div>
+                <div id="editButtonContainer" class="text-center mt-4">
+                    <!-- Botón de edición se renderiza aquí dinámicamente -->
+                </div>
             </div>
         </div>
     </div>
@@ -38,6 +41,7 @@
 
                 const data = await response.json();
                 renderTeacherDetails(data);
+                checkPermissionAndRenderEditButton();
             } catch (error) {
                 console.error('Error fetching teacher details:', error.message);
             }
@@ -53,6 +57,32 @@
                     <tr><th>Teléfono</th><td>${data.numero_telefonico}</td></tr>
                 </table>
             `;
+        }
+
+        async function checkPermissionAndRenderEditButton() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/permissions/Operar/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    // Renderizar el botón de edición si el usuario tiene el permiso
+                    const editButtonContainer = document.getElementById('editButtonContainer');
+                    editButtonContainer.innerHTML = `
+                        <button class="btn btn-primary" onclick="redirectToEditPage()">Editar Información</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking permissions:', error.message);
+            }
+        }
+
+        function redirectToEditPage() {
+            window.location.href = `../../src/update/teacher.html?id=${teacherId}`;
         }
 
         fetchTeacherDetails();
