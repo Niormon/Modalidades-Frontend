@@ -26,6 +26,8 @@
                         <button id="clearFilters" class="btn btn-warning">Clear Filters</button>
                     </div>
                 </div>
+                <!-- Export Button -->
+                <div id="exportButtonContainer" class="text-end mb-4"></div>
                 <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
@@ -198,6 +200,31 @@
             renderPage();
         });
 
+        async function checkExportPermission() {
+            const token = sessionStorage.getItem('token');
+            try {
+                const response = await fetch(`${window.CONFIG.API_URL}/permissions/Operar/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const exportContainer = document.getElementById('exportButtonContainer');
+                    exportContainer.innerHTML = `
+                        <button class="btn btn-success" onclick="redirectToExport()">Export Data</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error verifying permission for export:', error.message);
+            }
+        }
+
+        function redirectToExport() {
+            window.location.href = '/src/export/export.html';
+        }
+
         async function verifyTokenAndFetchData() {
             const token = sessionStorage.getItem('token');
             if (!token) {
@@ -220,13 +247,13 @@
 
                 await response.json();
                 fetchTrackingModes();
+                checkExportPermission(); // Check export permission
             } catch (error) {
                 alert('Session expired or invalid. Redirecting to login.');
                 window.location.href = '/index.html';
             }
         }
 
-        // Logout functionality
         document.getElementById('logoutButton').addEventListener('click', async () => {
             const token = sessionStorage.getItem('token');
             if (!token) {
@@ -248,7 +275,6 @@
                     throw new Error('Logout request failed. Please try again.');
                 }
 
-                // Clear token and redirect to login
                 sessionStorage.removeItem('token');
                 alert('You have been logged out successfully.');
                 window.location.href = '/index.html';
