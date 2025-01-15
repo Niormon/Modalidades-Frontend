@@ -117,14 +117,14 @@
                 currentItems.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${item.modality?.modalidad || 'N/A'}</td>
-                        <td>${item.student?.codigo || 'N/A'}</td>
-                        <td>${item.student?.nombre || 'N/A'}</td>
-                        <td>${item.teacher?.cedula || 'N/A'}</td>
-                        <td>${item.teacher?.nombre || 'N/A'}</td>
+                        <td><a href="/src/specific/modalidad.html?id=${item.id}" class="text-decoration-none">${item.modality?.modalidad || 'N/A'}</a></td>
+                        <td><a href="/src/specific/estudiante.html?id=${item.student?.id}" class="text-decoration-none">${item.student?.codigo || 'N/A'}</a></td>
+                        <td><a href="/src/specific/estudiante.html?id=${item.student?.id}" class="text-decoration-none">${item.student?.nombre || 'N/A'}</a></td>
+                        <td><a href="/src/specific/profesor.html?id=${item.teacher?.id}" class="text-decoration-none">${item.teacher?.cedula || 'N/A'}</a></td>
+                        <td><a href="/src/specific/profesor.html?id=${item.teacher?.id}" class="text-decoration-none">${item.teacher?.nombre || 'N/A'}</a></td>
                         <td>${item.modalidad_grado_activa ? '✓' : '✗'}</td>
                         <td>${item.student?.estudiante_graduado ? '✓' : '✗'}</td>
-                        <td>${item.institution?.nombre || 'N/A'}</td>
+                        <td><a href="/src/specific/institucion.html?id=${item.institution?.id}" class="text-decoration-none">${item.institution?.nombre || 'N/A'}</a></td>
                     `;
                     tableBody.appendChild(row);
                 });
