@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Profesor</title>
+    <script src="../../config.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header text-center bg-info text-white">
+                <h2>Crear Profesor</h2>
+            </div>
+            <div class="card-body">
+                <form id="createTeacherForm">
+                    <div class="mb-3">
+                        <label for="cedula" class="form-label">Cédula</label>
+                        <input type="text" id="cedula" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" id="nombre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo Electrónico</label>
+                        <input type="email" id="correo" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="numero_telefonico" class="form-label">Teléfono</label>
+                        <input type="text" id="numero_telefonico" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('createTeacherForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const token = sessionStorage.getItem('token');
+            const data = {
+                cedula: document.getElementById('cedula').value,
+                nombre: document.getElementById('nombre').value,
+                correo: document.getElementById('correo').value,
+                numero_telefonico: document.getElementById('numero_telefonico').value,
+            };
+
+            console.log("Datos enviados al servidor:", data);
+
+            try {
+                const response = await fetch(`${window.CONFIG.API_URL}/teachers/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    const errorResponse = await response.json();
+                    console.error("Error del servidor:", errorResponse);
+
+                    // Manejo del error específico
+                    if (typeof errorResponse.detail === 'string') {
+                        alert(`Error al crear el profesor:\n${errorResponse.detail}`);
+                    } else if (Array.isArray(errorResponse.detail)) {
+                        const errorMessages = errorResponse.detail.map((error) => error.msg).join('\n');
+                        alert(`Error al crear el profesor:\n${errorMessages}`);
+                    } else {
+                        alert('Error al crear el profesor. Por favor, verifica los datos.');
+                    }
+                    throw new Error('Error en la solicitud al servidor');
+                }
+
+                alert('Profesor creado con éxito');
+                window.location.href = '/home.html';
+            } catch (error) {
+                console.error('Error al crear el profesor:', error.message);
+                alert('Ocurrió un error al crear el profesor. Por favor, inténtalo de nuevo.');
+            }
+        });
+    </script>
+</body>
+</html>
