@@ -15,7 +15,7 @@
             <div class="col-md-12">
                 <h1 class="mb-4 text-center">Welcome to the Home Page</h1>
                 <div class="mb-4">
-                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by student name, student code, professor name, professor ID, or institution..." />
+                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by student name, student code, professor name, professor ID, modality or institution..." />
                     <div class="d-flex justify-content-between">
                         <div>
                             <button id="filterGraduated" class="btn btn-outline-success filter-btn">Show Graduated</button>
@@ -86,6 +86,20 @@
                 console.error('Error fetching tracking modes:', error.message);
             }
         }
+
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            const searchText = event.target.value.toLowerCase();
+            filteredTrackingModes = allTrackingModes.filter(item =>
+                (item.student?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.student?.codigo || '').toLowerCase().includes(searchText) ||
+                (item.teacher?.cedula || '').toLowerCase().includes(searchText) ||
+                (item.teacher?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.institution?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.modality?.modalidad || '').toLowerCase().includes(searchText)
+            );
+            currentPage = 1;
+            renderPage();
+        });
 
         function applyFilters() {
             let results = [...allTrackingModes];
