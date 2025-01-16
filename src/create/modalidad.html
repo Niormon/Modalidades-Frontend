@@ -72,6 +72,8 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Modalidad</button>
                 </form>
+                <!-- Botón Consultar -->
+                <button id="consultButton" class="btn btn-secondary mt-3">Consultar Modalidad</button>
             </div>
         </div>
     </div>
@@ -140,6 +142,12 @@
         fetchOptions('students', 'estudiante_id');
         fetchOptions('teachers', 'profesor_id');
         fetchOptions('institutions', 'institucion_id');
+        
+        // Función del botón "Consultar"
+        document.getElementById('consultButton').addEventListener('click', () => {
+            window.location.href = '/src/consult/modalidad.html'; // Redirige a la página de consulta
+        });
+
     </script>
 </body>
 </html>

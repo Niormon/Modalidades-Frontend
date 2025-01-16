@@ -37,6 +37,8 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Crear</button>
                 </form>
+                <!-- Botón Consultar -->
+                <button id="consultButton" class="btn btn-secondary mt-3">Consultar Profesor</button>
             </div>
         </div>
     </div>
@@ -87,6 +89,11 @@
                 console.error('Error al crear el profesor:', error.message);
                 alert('Ocurrió un error al crear el profesor. Por favor, inténtalo de nuevo.');
             }
+        });
+
+        // Función del botón "Consultar"
+        document.getElementById('consultButton').addEventListener('click', () => {
+            window.location.href = '/src/consult/profesor.html'; // Redirige a la página de consulta
         });
     </script>
 </body>

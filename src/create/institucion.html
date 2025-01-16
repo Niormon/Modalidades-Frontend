@@ -41,6 +41,8 @@
                     </div>
                     <button type="submit" class="btn btn-warning">Crear</button>
                 </form>
+                <!-- Botón Consultar -->
+                <button id="consultButton" class="btn btn-secondary mt-3">Consultar Institución</button>
             </div>
         </div>
     </div>
@@ -82,6 +84,11 @@
                 console.error('Error al crear la institución:', error.message);
                 alert(`Error al crear la institución: ${error.message}`);
             }
+        });
+
+        // Función del botón "Consultar"
+        document.getElementById('consultButton').addEventListener('click', () => {
+            window.location.href = '/src/consult/institucion.html'; // Redirige a la página de consulta
         });
     </script>
 </body>
