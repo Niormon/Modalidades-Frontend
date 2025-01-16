@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Institution</title>
+    <script src="../../config.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-warning text-white text-center">
+                <h2>Edit Institution</h2>
+            </div>
+            <div class="card-body">
+                <form id="editInstitutionForm">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pais_ciudad" class="form-label">Country and City</label>
+                        <input type="text" class="form-control" id="pais_ciudad" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="direccion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="numero_telefonico" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="numero_telefonico" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="correo" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const institutionId = urlParams.get('id');
+
+        async function fetchInstitutionDetails() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/institutions/${institutionId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch institution details');
+                const data = await response.json();
+                document.getElementById('nombre').value = data.nombre;
+                document.getElementById('pais_ciudad').value = data.pais_ciudad;
+                document.getElementById('direccion').value = data.direccion;
+                document.getElementById('numero_telefonico').value = data.numero_telefonico;
+                document.getElementById('correo').value = data.correo;
+            } catch (error) {
+                console.error('Error fetching institution details:', error.message);
+            }
+        }
+
+        document.getElementById('editInstitutionForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const updatedData = {
+                nombre: document.getElementById('nombre').value,
+                pais_ciudad: document.getElementById('pais_ciudad').value,
+                direccion: document.getElementById('direccion').value,
+                numero_telefonico: document.getElementById('numero_telefonico').value,
+                correo: document.getElementById('correo').value,
+            };
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/institutions/${institutionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedData),
+                });
+
+                if (!response.ok) throw new Error('Failed to update institution details');
+                alert('Institution updated successfully');
+            } catch (error) {
+                console.error('Error updating institution details:', error.message);
+            }
+        });
+
+        fetchInstitutionDetails();
+    </script>
+</body>
+</html>
