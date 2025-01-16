@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Estudiantes</title>
+    <script src="../js/auth.js"></script>
+    <script src="../../config.js"></script>
+    <script src="/src/js/redirect.js"></script>
+    <script src="/src/js/sidebar.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Consultar Estudiantes</h1>
+        <div class="mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre, código o cédula...">
+        </div>
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Cédula</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Graduado</th>
+                </tr>
+            </thead>
+            <tbody id="resultsTableBody">
+                <!-- Los resultados se llenarán dinámicamente -->
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination justify-content-center" id="paginationControls"></ul>
+        </nav>
+    </div>
+
+    <script>
+        let students = [];
+        const itemsPerPage = 20;
+        let currentPage = 1;
+
+        async function fetchStudents() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/students/`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                if (!response.ok) throw new Error('Error al obtener estudiantes');
+
+                students = await response.json();
+                renderPage();
+            } catch (error) {
+                console.error('Error fetching students:', error.message);
+            }
+        }
+
+        function renderPage() {
+            const tableBody = document.getElementById('resultsTableBody');
+            tableBody.innerHTML = '';
+
+            const filteredStudents = filterStudents(students);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredStudents.slice(startIndex, endIndex);
+
+            if (currentItems.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>';
+                return;
+            }
+
+            currentItems.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.codigo}</td>
+                    <td>${student.nombre}</td>
+                    <td>${student.cedula}</td>
+                    <td>${student.correo}</td>
+                    <td>${student.numero_telefonico}</td>
+                    <td>${student.estudiante_graduado ? 'Sí' : 'No'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            renderPaginationControls(filteredStudents.length);
+        }
+
+        function filterStudents(data) {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            return data.filter(student =>
+                student.nombre.toLowerCase().includes(query) ||
+                student.codigo.toLowerCase().includes(query) ||
+                student.cedula.toLowerCase().includes(query)
+            );
+        }
+
+        function renderPaginationControls(totalItems) {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageItem.addEventListener('click', () => {
+                    currentPage = i;
+                    renderPage();
+                });
+                paginationControls.appendChild(pageItem);
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            currentPage = 1;
+            renderPage();
+        });
+
+        fetchStudents();
+    </script>
+</body>
+</html>
