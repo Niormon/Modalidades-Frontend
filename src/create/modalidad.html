@@ -27,18 +27,21 @@
                     </div>
                     <div class="mb-3">
                         <label for="estudiante_id" class="form-label">Estudiante</label>
+                        <input type="text" id="estudiante_search" class="form-control mb-2" placeholder="Buscar estudiante por nombre o código">
                         <select id="estudiante_id" class="form-select">
                             <!-- Opciones de estudiantes se cargarán aquí dinámicamente -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="profesor_id" class="form-label">Profesor</label>
+                        <input type="text" id="profesor_search" class="form-control mb-2" placeholder="Buscar profesor por nombre o cédula">
                         <select id="profesor_id" class="form-select">
                             <!-- Opciones de profesores se cargarán aquí dinámicamente -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="institucion_id" class="form-label">Institución</label>
+                        <input type="text" id="institucion_search" class="form-control mb-2" placeholder="Buscar institución por nombre">
                         <select id="institucion_id" class="form-select">
                             <!-- Opciones de instituciones se cargarán aquí dinámicamente -->
                         </select>
@@ -94,12 +97,40 @@
                 const data = await response.json();
                 const selectElement = document.getElementById(elementId);
 
-                selectElement.innerHTML = data.map(item => 
-                    `<option value="${item.id}">${item.modality || item.nombre || item.codigo || item.cedula || 'Sin datos'}</option>`
-                ).join('');
+                selectElement.innerHTML = data.map(item => {
+                    if (elementId === 'estudiante_id') {
+                        return `<option value="${item.id}">${item.nombre} - ${item.codigo}</option>`;
+                    } else if (elementId === 'profesor_id') {
+                        return `<option value="${item.id}">${item.nombre} - ${item.cedula}</option>`;
+                    } else if (elementId === 'institucion_id') {
+                        return `<option value="${item.id}">${item.nombre}</option>`;
+                    } else {
+                        return `<option value="${item.id}">${item.modality || item.nombre || item.codigo || item.cedula || 'Sin datos'}</option>`;
+                    }
+                }).join('');
+
+                if (elementId === 'estudiante_id') {
+                    setupSearch('estudiante_search', selectElement, item => `${item.nombre} ${item.codigo}`);
+                } else if (elementId === 'profesor_id') {
+                    setupSearch('profesor_search', selectElement, item => `${item.nombre} ${item.cedula}`);
+                } else if (elementId === 'institucion_id') {
+                    setupSearch('institucion_search', selectElement, item => item.nombre);
+                }
             } catch (error) {
                 console.error(`Error al obtener opciones para ${endpoint}:`, error.message);
             }
+        }
+
+        function setupSearch(searchInputId, selectElement, filterFn) {
+            const searchInput = document.getElementById(searchInputId);
+
+            searchInput.addEventListener('input', () => {
+                const searchText = searchInput.value.toLowerCase();
+                Array.from(selectElement.options).forEach(option => {
+                    const itemText = option.text.toLowerCase();
+                    option.style.display = itemText.includes(searchText) ? 'block' : 'none';
+                });
+            });
         }
 
         document.getElementById('createModalidadForm').addEventListener('submit', async function(event) {
@@ -142,7 +173,7 @@
         fetchOptions('students', 'estudiante_id');
         fetchOptions('teachers', 'profesor_id');
         fetchOptions('institutions', 'institucion_id');
-        
+
         // Función del botón "Consultar"
         document.getElementById('consultButton').addEventListener('click', () => {
             window.location.href = '/home.html'; // Redirige a la página de consulta
