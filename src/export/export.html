@@ -8,7 +8,7 @@
     <link href="/style.css" rel="stylesheet">
     <script src="/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="../js/sidebar.js"></script>
 </head>
 <body>
@@ -43,7 +43,8 @@
                     </ul>
                 </nav>
                 <div class="text-end">
-                    <button id="exportSelected" class="btn btn-success mt-3">Export Selected</button>
+                    <button id="exportSelected" class="btn btn-success mt-3">Export to Excel</button>
+                    <button id="exportToPDF" class="btn btn-danger mt-3">Export to PDF</button> <!-- Nuevo botón para exportar a PDF -->
                 </div>
             </div>
         </div>
@@ -199,6 +200,77 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Modalities Export');
             XLSX.writeFile(workbook, 'modalities_export.xlsx');
+        });
+
+        document.getElementById('exportToPDF').addEventListener('click', () => { // Nuevo evento para PDF
+            if (selectedItems.size === 0) {
+                alert('No items selected for export.');
+                return;
+            }
+
+            const selectedData = allTrackingModes.filter(item => selectedItems.has(item.id));
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+            });
+            let y = 20;
+            let index = 1;
+
+            pdf.setFontSize(16);
+            pdf.text('Export Modalities', 14, y);
+            y += 10;
+
+            selectedData.forEach(item => {
+                if (y > 260) {
+                    pdf.addPage();
+                    y = 20;
+                }
+
+                pdf.text(`${index}.`, 14, y);
+                y += 8;
+
+                const fields = [
+                    `Modalidad Activa: ${item.modalidad_grado_activa ? 'Yes' : 'No'}`,
+                    `Descripción: ${item.descripcion || 'N/A'}`,
+                    `Nombre Jurado 1: ${item.nombre_jurado_1 || 'N/A'}`,
+                    `Nombre Jurado 2: ${item.nombre_jurado_2 || 'N/A'}`,
+                    `Fecha Inicio: ${item.fecha_inicio || 'N/A'}`,
+                    `Fecha Fin: ${item.fecha_fin || 'N/A'}`,
+                    `Modalidad: ${item.modality?.modalidad || 'N/A'}`,
+                    `Descripción Modalidad: ${item.modality?.descripcion || 'N/A'}`,
+                    `Código Estudiante: ${item.student?.codigo || 'N/A'}`,
+                    `Nombre Estudiante: ${item.student?.nombre || 'N/A'}`,
+                    `Cédula Estudiante: ${item.student?.cedula || 'N/A'}`,
+                    `Correo Estudiante: ${item.student?.correo || 'N/A'}`,
+                    `Teléfono Estudiante: ${item.student?.numero_telefonico || 'N/A'}`,
+                    `Fecha Nacimiento Estudiante: ${item.student?.fecha_nacimiento || 'N/A'}`,
+                    `Graduado: ${item.student?.estudiante_graduado ? 'Yes' : 'No'}`,
+                    `Cédula Profesor: ${item.teacher?.cedula || 'N/A'}`,
+                    `Nombre Profesor: ${item.teacher?.nombre || 'N/A'}`,
+                    `Correo Profesor: ${item.teacher?.correo || 'N/A'}`,
+                    `Teléfono Profesor: ${item.teacher?.numero_telefonico || 'N/A'}`,
+                    `Nombre Institución: ${item.institution?.nombre || 'N/A'}`,
+                    `País/Ciudad: ${item.institution?.pais_ciudad || 'N/A'}`,
+                    `Dirección: ${item.institution?.direccion || 'N/A'}`,
+                    `Teléfono Institución: ${item.institution?.numero_telefonico || 'N/A'}`,
+                    `Correo Institución: ${item.institution?.correo || 'N/A'}`
+                ];
+
+                fields.forEach(field => {
+                    if (y > 260) {
+                        pdf.addPage();
+                        y = 20;
+                    }
+                    pdf.text(field, 20, y);
+                    y += 8;
+                });
+
+                index++;
+            });
+
+            pdf.save('modalities_export.pdf'); // Guardar el PDF
         });
 
         fetchTrackingModes();
