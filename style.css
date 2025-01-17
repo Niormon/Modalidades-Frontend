@@ -1,5 +1,6 @@
 body {
     background-color: #f8f9fa;
+    margin-left: 240px; /* Espacio para la barra lateral */
 }
 
 .card {
