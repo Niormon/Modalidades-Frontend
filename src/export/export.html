@@ -8,6 +8,8 @@
     <link href="/style.css" rel="stylesheet">
     <script src="/config.js"></script>
     <script src="../js/sidebar.js"></script>
+    <!-- SheetJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="container mt-5">
@@ -35,6 +37,11 @@
                         <!-- Los datos se llenarán aquí dinámicamente -->
                     </tbody>
                 </table>
+                <nav>
+                    <ul class="pagination justify-content-center" id="paginationControls">
+                        <!-- Paginación dinámica -->
+                    </ul>
+                </nav>
                 <div class="text-end">
                     <button id="exportSelected" class="btn btn-success mt-3">Export Selected</button>
                 </div>
@@ -46,6 +53,8 @@
         let allTrackingModes = [];
         let filteredTrackingModes = [];
         const selectedItems = new Set();
+        const itemsPerPage = 20;
+        let currentPage = 1;
 
         async function fetchTrackingModes() {
             try {
@@ -79,6 +88,7 @@
                 (item.institution?.nombre || '').toLowerCase().includes(searchText) ||
                 (item.modality?.modalidad || '').toLowerCase().includes(searchText)
             );
+            currentPage = 1;
             renderPage();
         });
 
@@ -86,10 +96,14 @@
             const tableBody = document.getElementById('resultsTableBody');
             tableBody.innerHTML = '';
 
-            if (filteredTrackingModes.length === 0) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredTrackingModes.slice(startIndex, endIndex);
+
+            if (currentItems.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="9" class="text-center">No results found</td></tr>';
             } else {
-                filteredTrackingModes.forEach(item => {
+                currentItems.forEach(item => {
                     const isChecked = selectedItems.has(item.id);
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -107,6 +121,8 @@
                 });
             }
 
+            renderPaginationControls();
+
             document.querySelectorAll('.select-item').forEach(checkbox => {
                 checkbox.addEventListener('change', (event) => {
                     const id = event.target.dataset.id;
@@ -119,6 +135,24 @@
             });
         }
 
+        function renderPaginationControls() {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            const totalPages = Math.ceil(filteredTrackingModes.length / itemsPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageItem = document.createElement('li');
+                pageItem.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageItem.addEventListener('click', () => {
+                    currentPage = i;
+                    renderPage();
+                });
+                paginationControls.appendChild(pageItem);
+            }
+        }
+
         document.getElementById('exportSelected').addEventListener('click', () => {
             if (selectedItems.size === 0) {
                 alert('No items selected for export.');
@@ -127,55 +161,33 @@
 
             const selectedData = allTrackingModes.filter(item => selectedItems.has(item.id));
 
-            const headers = [
-                'Modalidad', 'Descripción Modalidad', 'Estudiante Código', 'Estudiante Nombre',
-                'Estudiante Cédula', 'Estudiante Correo', 'Estudiante Teléfono',
-                'Estudiante Fecha Nacimiento', 'Graduado', 'Profesor Cédula', 'Profesor Nombre',
-                'Profesor Correo', 'Profesor Teléfono', 'Institución Nombre', 'Institución País y Ciudad',
-                'Institución Dirección', 'Institución Teléfono', 'Institución Correo', 'Descripción',
-                'Jurado 1', 'Jurado 2', 'Fecha Inicio', 'Fecha Fin', 'Modalidad Activa'
-            ];
+            const rows = selectedData.map(item => ({
+                Modalidad: item.modality?.modalidad || 'N/A',
+                Descripción: item.descripcion || 'N/A',
+                'Fecha Inicio': item.fecha_inicio || 'N/A',
+                'Fecha Fin': item.fecha_fin || 'N/A',
+                'Estudiante Código': item.student?.codigo || 'N/A',
+                'Estudiante Nombre': item.student?.nombre || 'N/A',
+                'Estudiante Cédula': `'${item.student?.cedula || 'N/A'}`,
+                'Estudiante Correo': item.student?.correo || 'N/A',
+                'Estudiante Teléfono': item.student?.numero_telefonico || 'N/A',
+                'Estudiante Graduado': item.student?.estudiante_graduado ? 'Yes' : 'No',
+                'Profesor Cédula': item.teacher?.cedula || 'N/A',
+                'Profesor Nombre': item.teacher?.nombre || 'N/A',
+                'Profesor Correo': item.teacher?.correo || 'N/A',
+                'Profesor Teléfono': item.teacher?.numero_telefonico || 'N/A',
+                'Institución Nombre': item.institution?.nombre || 'N/A',
+                'Institución País/Ciudad': item.institution?.pais_ciudad || 'N/A',
+                'Institución Dirección': item.institution?.direccion || 'N/A',
+                'Institución Teléfono': item.institution?.numero_telefonico || 'N/A',
+                'Institución Correo': item.institution?.correo || 'N/A',
+            }));
 
-            const rows = selectedData.map(item => [
-                item.modality?.modalidad || 'N/A',
-                item.modality?.descripcion || 'N/A',
-                item.student?.codigo || 'N/A',
-                item.student?.nombre || 'N/A',
-                item.student?.cedula || 'N/A',
-                item.student?.correo || 'N/A',
-                item.student?.numero_telefonico || 'N/A',
-                item.student?.fecha_nacimiento || 'N/A',
-                item.student?.estudiante_graduado ? 'Yes' : 'No',
-                item.teacher?.cedula || 'N/A',
-                item.teacher?.nombre || 'N/A',
-                item.teacher?.correo || 'N/A',
-                item.teacher?.numero_telefonico || 'N/A',
-                item.institution?.nombre || 'N/A',
-                item.institution?.pais_ciudad || 'N/A',
-                item.institution?.direccion || 'N/A',
-                item.institution?.numero_telefonico || 'N/A',
-                item.institution?.correo || 'N/A',
-                item.descripcion || 'N/A',
-                item.nombre_jurado_1 || 'N/A',
-                item.nombre_jurado_2 || 'N/A',
-                item.fecha_inicio || 'N/A',
-                item.fecha_fin || 'N/A',
-                item.modalidad_grado_activa ? 'Yes' : 'No'
-            ]);
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Modalities');
 
-            const csvContent = [headers, ...rows].map(row =>
-                row.map(value => `"${value.replace(/"/g, '""')}"`).join(',')
-            ).join('\n');
-
-            const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'modalities_export.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            XLSX.writeFile(workbook, 'modalities_export.xlsx');
         });
 
         fetchTrackingModes();
