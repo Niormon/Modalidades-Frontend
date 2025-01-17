@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Modalities</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/style.css" rel="stylesheet">
+    <script src="/config.js"></script>
+    <script src="../js/sidebar.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <h1 class="mb-4 text-center">Export Modalities</h1>
+                <div class="mb-4">
+                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by student name, student code, professor name, professor ID, modality or institution..." />
+                </div>
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Select</th>
+                            <th>Modalidad</th>
+                            <th>Estudiante</th>
+                            <th>Nombre Estudiante</th>
+                            <th>Profesor</th>
+                            <th>Nombre Profesor</th>
+                            <th>Modalidad Activa</th>
+                            <th>Graduado</th>
+                            <th>Institución</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Los datos se llenarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+                <div class="text-end">
+                    <button id="exportSelected" class="btn btn-success mt-3">Export Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTrackingModes = [];
+        let filteredTrackingModes = [];
+        const selectedItems = new Set();
+
+        async function fetchTrackingModes() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/tracking_modes/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch tracking modes. Status: ${response.status}`);
+                }
+
+                allTrackingModes = await response.json();
+                filteredTrackingModes = allTrackingModes;
+                renderPage();
+            } catch (error) {
+                console.error('Error fetching tracking modes:', error.message);
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (event) => {
+            const searchText = event.target.value.toLowerCase();
+            filteredTrackingModes = allTrackingModes.filter(item =>
+                (item.student?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.student?.codigo || '').toLowerCase().includes(searchText) ||
+                (item.teacher?.cedula || '').toLowerCase().includes(searchText) ||
+                (item.teacher?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.institution?.nombre || '').toLowerCase().includes(searchText) ||
+                (item.modality?.modalidad || '').toLowerCase().includes(searchText)
+            );
+            renderPage();
+        });
+
+        function renderPage() {
+            const tableBody = document.getElementById('resultsTableBody');
+            tableBody.innerHTML = '';
+
+            if (filteredTrackingModes.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center">No results found</td></tr>';
+            } else {
+                filteredTrackingModes.forEach(item => {
+                    const isChecked = selectedItems.has(item.id);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="select-item" data-id="${item.id}" ${isChecked ? 'checked' : ''}></td>
+                        <td>${item.modality?.modalidad || 'N/A'}</td>
+                        <td>${item.student?.codigo || 'N/A'}</td>
+                        <td>${item.student?.nombre || 'N/A'}</td>
+                        <td>${item.teacher?.cedula || 'N/A'}</td>
+                        <td>${item.teacher?.nombre || 'N/A'}</td>
+                        <td>${item.modalidad_grado_activa ? '✓' : '✗'}</td>
+                        <td>${item.student?.estudiante_graduado ? '✓' : '✗'}</td>
+                        <td>${item.institution?.nombre || 'N/A'}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            document.querySelectorAll('.select-item').forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const id = event.target.dataset.id;
+                    if (event.target.checked) {
+                        selectedItems.add(id);
+                    } else {
+                        selectedItems.delete(id);
+                    }
+                });
+            });
+        }
+
+        document.getElementById('exportSelected').addEventListener('click', () => {
+            if (selectedItems.size === 0) {
+                alert('No items selected for export.');
+                return;
+            }
+
+            const selectedData = allTrackingModes.filter(item => selectedItems.has(item.id));
+
+            const headers = [
+                'Modalidad', 'Descripción Modalidad', 'Estudiante Código', 'Estudiante Nombre',
+                'Estudiante Cédula', 'Estudiante Correo', 'Estudiante Teléfono',
+                'Estudiante Fecha Nacimiento', 'Graduado', 'Profesor Cédula', 'Profesor Nombre',
+                'Profesor Correo', 'Profesor Teléfono', 'Institución Nombre', 'Institución País y Ciudad',
+                'Institución Dirección', 'Institución Teléfono', 'Institución Correo', 'Descripción',
+                'Jurado 1', 'Jurado 2', 'Fecha Inicio', 'Fecha Fin', 'Modalidad Activa'
+            ];
+
+            const rows = selectedData.map(item => [
+                item.modality?.modalidad || 'N/A',
+                item.modality?.descripcion || 'N/A',
+                item.student?.codigo || 'N/A',
+                item.student?.nombre || 'N/A',
+                item.student?.cedula || 'N/A',
+                item.student?.correo || 'N/A',
+                item.student?.numero_telefonico || 'N/A',
+                item.student?.fecha_nacimiento || 'N/A',
+                item.student?.estudiante_graduado ? 'Yes' : 'No',
+                item.teacher?.cedula || 'N/A',
+                item.teacher?.nombre || 'N/A',
+                item.teacher?.correo || 'N/A',
+                item.teacher?.numero_telefonico || 'N/A',
+                item.institution?.nombre || 'N/A',
+                item.institution?.pais_ciudad || 'N/A',
+                item.institution?.direccion || 'N/A',
+                item.institution?.numero_telefonico || 'N/A',
+                item.institution?.correo || 'N/A',
+                item.descripcion || 'N/A',
+                item.nombre_jurado_1 || 'N/A',
+                item.nombre_jurado_2 || 'N/A',
+                item.fecha_inicio || 'N/A',
+                item.fecha_fin || 'N/A',
+                item.modalidad_grado_activa ? 'Yes' : 'No'
+            ]);
+
+            const csvContent = [headers, ...rows].map(row =>
+                row.map(value => `"${value.replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+
+            const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'modalities_export.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        fetchTrackingModes();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
