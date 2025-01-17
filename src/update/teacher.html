@@ -21,19 +21,19 @@
                 <form id="editTeacherForm">
                     <div class="mb-3">
                         <label for="cedula" class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="cedula" required>
+                        <input type="text" class="form-control" id="cedula" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" required>
+                        <input type="text" class="form-control" id="nombre" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Correo</label>
-                        <input type="email" class="form-control" id="correo" required>
+                        <input type="email" class="form-control" id="correo" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="numero_telefonico" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="numero_telefonico" required>
+                        <input type="text" class="form-control" id="numero_telefonico" maxlength="15" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </form>
@@ -45,6 +45,40 @@
         const urlParams = new URLSearchParams(window.location.search);
         const teacherId = urlParams.get('id');
 
+        // Validaciones de entrada
+        document.getElementById('cedula').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[0-9]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('nombre').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[a-zA-ZÁÉÍÓÚáéíóúÜüÑñ0-9\s]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('correo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[a-zA-Z0-9@._\-ÁÉÍÓÚáéíóúÜüÑñ]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('numero_telefonico').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[0-9+\-\s]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        // Cargar detalles del profesor
         async function fetchTeacherDetails() {
             try {
                 const token = sessionStorage.getItem('token');
@@ -63,6 +97,7 @@
             }
         }
 
+        // Guardar cambios del formulario
         document.getElementById('editTeacherForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const updatedData = {

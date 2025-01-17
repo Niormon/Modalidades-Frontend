@@ -21,29 +21,62 @@
                 <form id="createTeacherForm">
                     <div class="mb-3">
                         <label for="cedula" class="form-label">Cédula</label>
-                        <input type="text" id="cedula" class="form-control" required>
+                        <input type="text" id="cedula" class="form-control" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" id="nombre" class="form-control" required>
+                        <input type="text" id="nombre" class="form-control" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Correo Electrónico</label>
-                        <input type="email" id="correo" class="form-control" required>
+                        <input type="email" id="correo" class="form-control" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="numero_telefonico" class="form-label">Teléfono</label>
-                        <input type="text" id="numero_telefonico" class="form-control" required>
+                        <input type="text" id="numero_telefonico" class="form-control" maxlength="15" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Crear</button>
                 </form>
-                <!-- Botón Consultar -->
                 <button id="consultButton" class="btn btn-secondary mt-3">Consultar Profesor</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Validaciones de entrada
+        document.getElementById('cedula').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[0-9]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('nombre').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[a-zA-ZÁÉÍÓÚáéíóúÜüÑñ0-9\s]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('correo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[a-zA-Z0-9@._\-ÁÉÍÓÚáéíóúÜüÑñ]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('numero_telefonico').addEventListener('input', function(event) {
+            const value = event.target.value;
+            const validCharacters = /^[0-9+\-\s]*$/;
+            if (!validCharacters.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        // Funcionalidad del formulario
         document.getElementById('createTeacherForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -71,7 +104,6 @@
                     const errorResponse = await response.json();
                     console.error("Error del servidor:", errorResponse);
 
-                    // Manejo del error específico
                     if (typeof errorResponse.detail === 'string') {
                         alert(`Error al crear el profesor:\n${errorResponse.detail}`);
                     } else if (Array.isArray(errorResponse.detail)) {
@@ -91,9 +123,8 @@
             }
         });
 
-        // Función del botón "Consultar"
         document.getElementById('consultButton').addEventListener('click', () => {
-            window.location.href = '/src/consult/profesor.html'; // Redirige a la página de consulta
+            window.location.href = '/src/consult/profesor.html';
         });
     </script>
 </body>
