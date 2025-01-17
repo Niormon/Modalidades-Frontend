@@ -76,13 +76,13 @@
             currentItems.forEach(student => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${student.codigo}</td>
-                    <td>${student.nombre}</td>
-                    <td>${student.cedula}</td>
-                    <td>${student.correo}</td>
-                    <td>${student.numero_telefonico}</td>
-                    <td>${student.fecha_nacimiento || 'N/A'}</td>
-                    <td>${student.estudiante_graduado ? 'Sí' : 'No'}</td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.codigo}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.nombre}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.cedula}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.correo}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.numero_telefonico}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.fecha_nacimiento || 'N/A'}</a></td>
+                    <td><a href="/src/specific/estudiante.html?id=${student.id}" class="text-decoration-none">${student.estudiante_graduado ? 'Sí' : 'No'}</a></td>
                 `;
                 tableBody.appendChild(row);
             });

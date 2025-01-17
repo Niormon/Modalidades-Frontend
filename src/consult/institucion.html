@@ -74,11 +74,11 @@
             currentItems.forEach(institution => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${institution.nombre}</td>
-                    <td>${institution.pais_ciudad}</td>
-                    <td>${institution.direccion}</td>
-                    <td>${institution.correo}</td>
-                    <td>${institution.numero_telefonico}</td>
+                    <td><a href="/src/specific/institucion.html?id=${institution.id}" class="text-decoration-none">${institution.nombre}</a></td>
+                    <td><a href="/src/specific/institucion.html?id=${institution.id}" class="text-decoration-none">${institution.pais_ciudad}</a></td>
+                    <td><a href="/src/specific/institucion.html?id=${institution.id}" class="text-decoration-none">${institution.direccion}</a></td>
+                    <td><a href="/src/specific/institucion.html?id=${institution.id}" class="text-decoration-none">${institution.correo}</a></td>
+                    <td><a href="/src/specific/institucion.html?id=${institution.id}" class="text-decoration-none">${institution.numero_telefonico}</a></td>
                 `;
                 tableBody.appendChild(row);
             });

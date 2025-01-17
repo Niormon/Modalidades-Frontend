@@ -73,10 +73,10 @@
             currentItems.forEach(teacher => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${teacher.nombre}</td>
-                    <td>${teacher.cedula}</td>
-                    <td>${teacher.correo}</td>
-                    <td>${teacher.numero_telefonico}</td>
+                    <td><a href="/src/specific/profesor.html?id=${teacher.id}" class="text-decoration-none">${teacher.nombre}</a></td>
+                    <td><a href="/src/specific/profesor.html?id=${teacher.id}" class="text-decoration-none">${teacher.cedula}</a></td>
+                    <td><a href="/src/specific/profesor.html?id=${teacher.id}" class="text-decoration-none">${teacher.correo}</a></td>
+                    <td><a href="/src/specific/profesor.html?id=${teacher.id}" class="text-decoration-none">${teacher.numero_telefonico}</a></td>
                 `;
                 tableBody.appendChild(row);
             });
