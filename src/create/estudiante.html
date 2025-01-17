@@ -21,23 +21,23 @@
                 <form id="createStudentForm">
                     <div class="mb-3">
                         <label for="codigo" class="form-label">Código</label>
-                        <input type="text" id="codigo" class="form-control" required>
+                        <input type="text" id="codigo" class="form-control" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" id="nombre" class="form-control" required>
+                        <input type="text" id="nombre" class="form-control" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="cedula" class="form-label">Cédula</label>
-                        <input type="text" id="cedula" class="form-control" required>
+                        <input type="text" id="cedula" class="form-control" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Correo Electrónico</label>
-                        <input type="email" id="correo" class="form-control" required>
+                        <input type="email" id="correo" class="form-control" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="numero_telefonico" class="form-label">Teléfono</label>
-                        <input type="text" id="numero_telefonico" class="form-control" required>
+                        <input type="text" id="numero_telefonico" class="form-control" maxlength="15" required>
                     </div>
                     <div class="mb-3">
                         <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
@@ -59,6 +59,42 @@
     </div>
 
     <script>
+        // Validaciones de entrada
+        document.getElementById('codigo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-Z0-9]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('nombre').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-ZÁÉÍÓÚáéíóúÜüÑñ0-9\s]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('cedula').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[0-9]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('correo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-Z0-9@._\-ÁÉÍÓÚáéíóúÜüÑñ]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('numero_telefonico').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[0-9+\-\s]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
         document.getElementById('createStudentForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -70,7 +106,7 @@
                 correo: document.getElementById('correo').value,
                 numero_telefonico: document.getElementById('numero_telefonico').value,
                 fecha_nacimiento: document.getElementById('fecha_nacimiento').value,
-                estudiante_graduado: document.getElementById('graduado').checked, // Estado del checkbox
+                estudiante_graduado: document.getElementById('graduado').value === 'true',
             };
 
             console.log("Datos enviados al servidor:", data);
@@ -89,7 +125,6 @@
                     const errorResponse = await response.json();
                     console.error("Error del servidor:", errorResponse);
 
-                    // Verifica si `detail` es un mensaje de texto
                     if (typeof errorResponse.detail === 'string') {
                         alert(`Error al crear el estudiante:\n${errorResponse.detail}`);
                     } else if (Array.isArray(errorResponse.detail)) {

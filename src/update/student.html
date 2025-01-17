@@ -21,23 +21,23 @@
                 <form id="editStudentForm">
                     <div class="mb-3">
                         <label for="codigo" class="form-label">Code</label>
-                        <input type="text" class="form-control" id="codigo" required>
+                        <input type="text" class="form-control" id="codigo" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="nombre" required>
+                        <input type="text" class="form-control" id="nombre" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="cedula" class="form-label">ID</label>
-                        <input type="text" class="form-control" id="cedula" required>
+                        <input type="text" class="form-control" id="cedula" maxlength="20" required>
                     </div>
                     <div class="mb-3">
                         <label for="correo" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="correo" required>
+                        <input type="email" class="form-control" id="correo" maxlength="100" required>
                     </div>
                     <div class="mb-3">
                         <label for="numero_telefonico" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="numero_telefonico" required>
+                        <input type="text" class="form-control" id="numero_telefonico" maxlength="15" required>
                     </div>
                     <div class="mb-3">
                         <label for="fecha_nacimiento" class="form-label">Birth Date</label>
@@ -80,6 +80,41 @@
                 console.error('Error fetching student details:', error.message);
             }
         }
+
+        document.getElementById('codigo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-Z0-9]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('nombre').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-ZÁÉÍÓÚáéíóúÜüÑñ0-9\s]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('cedula').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[0-9]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('correo').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[a-zA-Z0-9@._\-ÁÉÍÓÚáéíóúÜüÑñ]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('numero_telefonico').addEventListener('input', function(event) {
+            const value = event.target.value;
+            if (!/^[0-9+\-\s]*$/.test(value)) {
+                event.target.value = value.slice(0, -1);
+            }
+        });
 
         document.getElementById('editStudentForm').addEventListener('submit', async (event) => {
             event.preventDefault();
