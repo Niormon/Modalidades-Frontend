@@ -24,6 +24,9 @@
                 <div id="editButtonContainer" class="text-center mt-4">
                     <!-- Botón de edición se renderiza aquí dinámicamente -->
                 </div>
+                <div id="deleteButtonContainer" class="text-center mt-4">
+                    <!-- Botón de eliminación se renderiza aquí dinámicamente -->
+                </div>
             </div>
         </div>
     </div>
@@ -46,6 +49,7 @@
                 const data = await response.json();
                 renderTeacherDetails(data);
                 checkPermissionAndRenderEditButton();
+                checkPermissionAndRenderDeleteButton(); // Renderiza el botón de eliminar
             } catch (error) {
                 console.error('Error fetching teacher details:', error.message);
             }
@@ -74,7 +78,6 @@
                 });
 
                 if (response.ok) {
-                    // Renderizar el botón de edición si el usuario tiene el permiso
                     const editButtonContainer = document.getElementById('editButtonContainer');
                     editButtonContainer.innerHTML = `
                         <button class="btn btn-primary" onclick="redirectToEditPage()">Editar Información</button>
@@ -82,6 +85,52 @@
                 }
             } catch (error) {
                 console.error('Error checking permissions:', error.message);
+            }
+        }
+
+        async function checkPermissionAndRenderDeleteButton() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/permissions/Operar/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const deleteButtonContainer = document.getElementById('deleteButtonContainer');
+                    deleteButtonContainer.innerHTML = `
+                        <button class="btn btn-danger" onclick="confirmAndDelete()">Eliminar Registro</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking permissions:', error.message);
+            }
+        }
+
+        async function confirmAndDelete() {
+            const confirmed = confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.');
+            if (!confirmed) return;
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/teachers/${teacherId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    alert('Registro eliminado con éxito.');
+                    window.location.href = '/home.html';
+                } else {
+                    alert('Error al eliminar el registro. Inténtalo nuevamente.');
+                }
+            } catch (error) {
+                console.error('Error deleting record:', error.message);
+                alert('Ocurrió un error al eliminar el registro. Por favor, inténtalo de nuevo.');
             }
         }
 
