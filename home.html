@@ -30,6 +30,8 @@
                 </div>
                 <!-- Export Button -->
                 <div id="exportButtonContainer" class="text-end mb-4"></div>
+                <!-- Admin Button -->
+                <div id="adminButtonContainer" class="text-end mb-4"></div>
                 <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
@@ -237,8 +239,33 @@
             }
         }
 
+        async function checkAdminPermission() {
+            const token = sessionStorage.getItem('token');
+            try {
+                const response = await fetch(`${window.CONFIG.API_URL}/permissions/Admin/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const adminContainer = document.getElementById('adminButtonContainer');
+                    adminContainer.innerHTML = `
+                        <button class="btn btn-info" onclick="redirectToAdminPage()">Admin Page</button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error verifying permission for admin:', error.message);
+            }
+        }
+
         function redirectToExport() {
             window.location.href = '/src/export/export.html';
+        }
+
+        function redirectToAdminPage() {
+            window.location.href = '/src/Admin/admin.html';
         }
 
         async function verifyTokenAndFetchData() {
@@ -264,6 +291,7 @@
                 await response.json();
                 fetchTrackingModes();
                 checkExportPermission(); // Check export permission
+                checkAdminPermission(); // Check admin permission
             } catch (error) {
                 alert('Session expired or invalid. Redirecting to login.');
                 window.location.href = '/index.html';
