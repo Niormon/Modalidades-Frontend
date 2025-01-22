@@ -22,6 +22,9 @@
                     <!-- Detalles del permiso se cargarán dinámicamente -->
                 </div>
                 <div class="text-center mt-4">
+                    <button class="btn btn-danger" onclick="confirmAndDeletePermission()">Eliminar Permiso</button>
+                </div>
+                <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBackToRole()">Regresar a Rol</button>
                 </div>
             </div>
@@ -59,6 +62,32 @@
                     <tr><th>Descripción</th><td>${permission.descripcion}</td></tr>
                 </table>
             `;
+        }
+
+        async function confirmAndDeletePermission() {
+            const confirmed = confirm('¿Estás seguro de que deseas eliminar este permiso? Esta acción no se puede deshacer.');
+            if (!confirmed) return;
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/permisos/${permissionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    alert('Error al eliminar el permiso. Inténtalo nuevamente.');
+                    return;
+                }
+
+                alert('Permiso eliminado con éxito.');
+                window.history.back();
+            } catch (error) {
+                console.error('Error al eliminar el permiso:', error.message);
+                alert('Ocurrió un error al eliminar el permiso. Por favor, inténtalo de nuevo.');
+            }
         }
 
         function goBackToRole() {
