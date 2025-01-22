@@ -27,12 +27,14 @@
                         <!-- Permisos relacionados se listarán aquí -->
                     </ul>
                 </div>
-                <div id="addPermissionSection" class="mt-4">
+                <div class="mt-4">
                     <h4>Agregar Permiso</h4>
-                    <select id="addPermissionSelect" class="form-select mb-3">
-                        <option value="">Seleccione un permiso...</option>
-                    </select>
-                    <button id="addPermissionButton" class="btn btn-success">Agregar Permiso</button>
+                    <div class="d-flex">
+                        <select id="permissionSelect" class="form-select me-2">
+                            <option value="">Seleccione un permiso</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="confirmAndAddPermission()">Agregar</button>
+                    </div>
                 </div>
                 <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBackToAdmin()">Regresar a Administración</button>
@@ -94,18 +96,17 @@
                     },
                 });
 
-                if (!response.ok) throw new Error('Error al obtener la lista de permisos');
+                if (!response.ok) throw new Error('Error al obtener los permisos disponibles');
 
                 const allPermissions = await response.json();
 
-                const assignedPermissions = new Set(
-                    Array.from(document.querySelectorAll('#rolePermissions ul li')).map(li => li.dataset.permissionId)
-                );
+                const rolePermissions = document.querySelectorAll('#rolePermissions ul li');
+                const assignedPermissionIds = Array.from(rolePermissions).map(li => li.dataset.permissionId);
 
-                const availablePermissions = allPermissions.filter(permiso => !assignedPermissions.has(permiso.id));
+                const availablePermissions = allPermissions.filter(permission => !assignedPermissionIds.includes(permission.id));
                 renderAvailablePermissions(availablePermissions);
             } catch (error) {
-                console.error('Error al obtener la lista de permisos:', error.message);
+                console.error('Error al obtener los permisos disponibles:', error.message);
             }
         }
 
@@ -133,19 +134,19 @@
                 li.className = 'list-group-item d-flex justify-content-between align-items-center';
                 li.dataset.permissionId = permission.permiso.id;
                 li.innerHTML = `
-                    <div>
+                    <a href="../../Admin/specific/permission.html?id=${permission.permiso.id}" class="text-decoration-none">
                         <strong>${permission.permiso.nombre_permiso}</strong>
                         <p>${permission.permiso.descripcion}</p>
-                    </div>
-                    <button class="btn btn-danger btn-sm" onclick="deletePermission('${permission.id}')">Eliminar</button>
+                    </a>
+                    <button class="btn btn-danger btn-sm" onclick="confirmAndRemovePermission('${permission.id}')">Eliminar</button>
                 `;
                 container.appendChild(li);
             });
         }
 
         function renderAvailablePermissions(permissions) {
-            const select = document.getElementById('addPermissionSelect');
-            select.innerHTML = '<option value="">Seleccione un permiso...</option>';
+            const select = document.getElementById('permissionSelect');
+            select.innerHTML = '<option value="">Seleccione un permiso</option>';
 
             permissions.forEach(permission => {
                 const option = document.createElement('option');
@@ -155,34 +156,34 @@
             });
         }
 
-        async function deletePermission(permissionRelationId) {
-            const confirmed = confirm('¿Estás seguro de que deseas eliminar este permiso?');
+        async function confirmAndRemovePermission(permissionId) {
+            const confirmed = confirm('¿Estás seguro de que deseas eliminar este permiso del rol?');
             if (!confirmed) return;
 
             try {
                 const token = sessionStorage.getItem('token');
-                const response = await fetch(`${window.CONFIG.API_URL}/rol-permisos/${permissionRelationId}`, {
+                const response = await fetch(`${window.CONFIG.API_URL}/rol-permisos/${permissionId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
-                if (!response.ok) throw new Error('Error al eliminar el permiso');
+                if (!response.ok) throw new Error('Error al eliminar el permiso del rol');
 
                 alert('Permiso eliminado con éxito');
                 fetchRolePermissions();
                 fetchAvailablePermissions();
             } catch (error) {
-                console.error('Error al eliminar el permiso:', error.message);
-                alert('No se pudo eliminar el permiso. Intenta de nuevo.');
+                console.error('Error al eliminar el permiso del rol:', error.message);
             }
         }
 
-        async function addPermission() {
-            const selectedPermissionId = document.getElementById('addPermissionSelect').value;
+        async function confirmAndAddPermission() {
+            const selectedPermissionId = document.getElementById('permissionSelect').value;
+
             if (!selectedPermissionId) {
-                alert('Por favor, seleccione un permiso para agregar.');
+                alert('Seleccione un permiso para agregar.');
                 return;
             }
 
@@ -203,22 +204,19 @@
                     }),
                 });
 
-                if (!response.ok) throw new Error('Error al agregar el permiso');
+                if (!response.ok) throw new Error('Error al agregar el permiso al rol');
 
                 alert('Permiso agregado con éxito');
                 fetchRolePermissions();
                 fetchAvailablePermissions();
             } catch (error) {
-                console.error('Error al agregar el permiso:', error.message);
-                alert('No se pudo agregar el permiso. Intenta de nuevo.');
+                console.error('Error al agregar el permiso al rol:', error.message);
             }
         }
 
         function goBackToAdmin() {
             window.location.href = '../../Admin/admin.html';
         }
-
-        document.getElementById('addPermissionButton').addEventListener('click', addPermission);
 
         // Fetch role details, permissions, and available permissions on page load
         fetchRoleDetails();
