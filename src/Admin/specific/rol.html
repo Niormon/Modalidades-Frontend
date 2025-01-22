@@ -21,6 +21,12 @@
                 <div id="roleDetails">
                     <!-- Detalles del rol cargados dinámicamente -->
                 </div>
+                <div id="rolePermissions" class="mt-4">
+                    <h4>Permisos Asociados</h4>
+                    <ul class="list-group">
+                        <!-- Permisos relacionados se listarán aquí -->
+                    </ul>
+                </div>
                 <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBackToAdmin()">Regresar a Administración</button>
                 </div>
@@ -51,6 +57,26 @@
             }
         }
 
+        async function fetchRolePermissions() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${window.CONFIG.API_URL}/rol-permisos/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) throw new Error('Error al obtener los permisos del rol');
+
+                const allPermissions = await response.json();
+                const rolePermissions = allPermissions.filter(item => item.rol.id === roleId);
+                renderRolePermissions(rolePermissions);
+            } catch (error) {
+                console.error('Error al obtener los permisos del rol:', error.message);
+            }
+        }
+
         function renderRoleDetails(role) {
             const container = document.getElementById('roleDetails');
             container.innerHTML = `
@@ -61,11 +87,31 @@
             `;
         }
 
+        function renderRolePermissions(permissions) {
+            const container = document.querySelector('#rolePermissions ul');
+            if (permissions.length === 0) {
+                container.innerHTML = '<li class="list-group-item text-center">No hay permisos asociados</li>';
+                return;
+            }
+
+            permissions.forEach(permission => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `
+                    <strong>${permission.permiso.nombre_permiso}</strong>
+                    <p>${permission.permiso.descripcion}</p>
+                `;
+                container.appendChild(li);
+            });
+        }
+
         function goBackToAdmin() {
             window.location.href = '../../Admin/admin.html';
         }
 
+        // Fetch role details and permissions on page load
         fetchRoleDetails();
+        fetchRolePermissions();
     </script>
 </body>
 </html>
