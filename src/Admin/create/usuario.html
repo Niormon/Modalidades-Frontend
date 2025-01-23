@@ -40,6 +40,9 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Usuario</button>
                 </form>
+                <div class="text-center mt-4">
+                    <button class="btn btn-secondary" onclick="redirectToAdmin()">Consultar Usuarios</button>
+                </div>
             </div>
         </div>
     </div>
@@ -107,6 +110,10 @@
             passwordInput.type = isPasswordHidden ? 'text' : 'password';
             passwordIcon.className = isPasswordHidden ? 'bi bi-eye' : 'bi bi-eye-slash';
         });
+
+        function redirectToAdmin() {
+            window.location.href = '../../Admin/admin.html';
+        }
 
         fetchRoles();
     </script>

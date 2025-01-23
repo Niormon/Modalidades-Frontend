@@ -29,6 +29,9 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Permiso</button>
                 </form>
+                <div class="text-center mt-4">
+                    <button class="btn btn-secondary" onclick="redirectToPermissions()">Consultar Permisos</button>
+                </div>
             </div>
         </div>
     </div>
@@ -61,6 +64,11 @@
                 alert('Error al crear el permiso');
             }
         });
+
+        function redirectToPermissions() {
+        window.location.href = '../../Admin/consult/permissions.html';
+        }
+
     </script>
 </body>
 </html>

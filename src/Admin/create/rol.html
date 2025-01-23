@@ -29,6 +29,9 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Rol</button>
                 </form>
+                <div class="text-center mt-4">
+                    <button class="btn btn-secondary" onclick="redirectToRoles()">Consultar Roles</button>
+                </div>
             </div>
         </div>
     </div>
@@ -61,6 +64,11 @@
                 alert('Error al crear el rol');
             }
         });
+
+        function redirectToRoles() {
+        window.location.href = '../../Admin/consult/roles.html';
+        }
+
     </script>
 </body>
 </html>
