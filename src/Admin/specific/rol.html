@@ -38,6 +38,7 @@
                 </div>
                 <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBack()">Regresar</button>
+                    <button class="btn btn-success" onclick="redirectToEditRole()">Modificar Rol</button>
                     <button class="btn btn-danger" onclick="confirmAndDeleteRole()">Eliminar Rol</button>
                 </div>
             </div>
@@ -243,6 +244,10 @@
 
         function goBack() {
             window.history.back();
+        }
+
+        function redirectToEditRole() {
+        window.location.href = `../../Admin/update/rol.html?id=${roleId}`;
         }
 
         // Fetch role details, permissions, and available permissions on page load

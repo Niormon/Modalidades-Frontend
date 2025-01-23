@@ -23,6 +23,7 @@
                 </div>
                 <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBack()">Regresar</button>
+                    <button class="btn btn-success" onclick="redirectToEditUser()">Modificar Usuario</button>
                     <button class="btn btn-danger" onclick="confirmAndDeleteUser()">Eliminar Usuario</button>
                 </div>
             </div>
@@ -87,8 +88,8 @@
             }
         }
 
-        function goBackToAdmin() {
-            window.location.href = '../../Admin/admin.html';
+        function redirectToEditUser() {
+            window.location.href = `../../Admin/update/usuario.html?id=${userId}`;
         }
 
         function goBack() {

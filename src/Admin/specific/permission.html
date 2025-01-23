@@ -22,10 +22,9 @@
                     <!-- Detalles del permiso se cargarán dinámicamente -->
                 </div>
                 <div class="text-center mt-4">
-                    <button class="btn btn-danger" onclick="confirmAndDeletePermission()">Eliminar Permiso</button>
-                </div>
-                <div class="text-center mt-4">
                     <button class="btn btn-primary" onclick="goBack()">Regresar</button>
+                    <button class="btn btn-success" onclick="redirectToEditPermission()">Modificar Permiso</button>
+                    <button class="btn btn-danger" onclick="confirmAndDeletePermission()">Eliminar Permiso</button>
                 </div>
             </div>
         </div>
@@ -92,6 +91,10 @@
 
         function goBack() {
             window.history.back();
+        }
+
+        function redirectToEditPermission() {
+        window.location.href = `../../Admin/update/permiso.html?id=${permissionId}`;
         }
 
         // Fetch permission details on page load
