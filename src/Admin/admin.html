@@ -17,7 +17,7 @@
             <div class="col-md-12">
                 <h1 class="mb-4 text-center">Administración de Usuarios</h1>
                 <div class="mb-4">
-                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre de usuario..." />
+                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Buscar por nombre de usuario o nombre de rol..." />
                 </div>
                 <table class="table table-bordered">
                     <thead class="table-light">
@@ -71,7 +71,8 @@
         document.getElementById('searchInput').addEventListener('input', (event) => {
             const searchText = event.target.value.toLowerCase();
             filteredUsers = allUsers.filter(user =>
-                user.nombre_usuario.toLowerCase().includes(searchText)
+                user.nombre_usuario.toLowerCase().includes(searchText) || // Filtrar por nombre de usuario
+                user.rol.nombre_rol.toLowerCase().includes(searchText)    // Filtrar por nombre de rol
             );
             currentPage = 1;
             renderPage();
