@@ -82,7 +82,8 @@
                 }
 
                 alert('Permiso eliminado con éxito.');
-                window.history.back();
+                goBackToAdmin();
+                
             } catch (error) {
                 console.error('Error al eliminar el permiso:', error.message);
                 alert('Ocurrió un error al eliminar el permiso. Por favor, inténtalo de nuevo.');
@@ -91,6 +92,10 @@
 
         function goBack() {
             window.history.back();
+        }
+
+        function goBackToAdmin() {
+            window.location.href = '../../Admin/admin.html';
         }
 
         function redirectToEditPermission() {

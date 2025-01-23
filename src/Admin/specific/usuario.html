@@ -81,7 +81,7 @@
                 if (!response.ok) throw new Error('Error al eliminar el usuario');
 
                 alert('Usuario eliminado con éxito.');
-                window.location.href = '../../Admin/admin.html';
+                goBackToAdmin();
             } catch (error) {
                 console.error('Error al eliminar el usuario:', error.message);
                 alert('Ocurrió un error al intentar eliminar el usuario. Por favor, inténtalo de nuevo.');
@@ -90,6 +90,10 @@
 
         function redirectToEditUser() {
             window.location.href = `../../Admin/update/usuario.html?id=${userId}`;
+        }
+
+        function goBackToAdmin() {
+            window.location.href = '../../Admin/admin.html';
         }
 
         function goBack() {
