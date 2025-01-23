@@ -22,8 +22,8 @@
                     <!-- Detalles del usuario cargados dinámicamente -->
                 </div>
                 <div class="text-center mt-4">
+                    <button class="btn btn-primary" onclick="goBack()">Regresar</button>
                     <button class="btn btn-danger" onclick="confirmAndDeleteUser()">Eliminar Usuario</button>
-                    <button class="btn btn-primary" onclick="goBackToAdmin()">Regresar a Administración</button>
                 </div>
             </div>
         </div>
@@ -89,6 +89,10 @@
 
         function goBackToAdmin() {
             window.location.href = '../../Admin/admin.html';
+        }
+
+        function goBack() {
+            window.history.back();
         }
 
         fetchUserDetails();

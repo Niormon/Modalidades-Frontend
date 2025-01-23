@@ -37,7 +37,7 @@
                     </div>
                 </div>
                 <div class="text-center mt-4">
-                    <button class="btn btn-primary" onclick="goBackToAdmin()">Regresar a Administración</button>
+                    <button class="btn btn-primary" onclick="goBack()">Regresar</button>
                     <button class="btn btn-danger" onclick="confirmAndDeleteRole()">Eliminar Rol</button>
                 </div>
             </div>
@@ -239,6 +239,10 @@
 
         function goBackToAdmin() {
             window.location.href = '../../Admin/admin.html';
+        }
+
+        function goBack() {
+            window.history.back();
         }
 
         // Fetch role details, permissions, and available permissions on page load
