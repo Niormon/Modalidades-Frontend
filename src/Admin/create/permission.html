@@ -21,11 +21,11 @@
                 <form id="createPermissionForm">
                     <div class="mb-3">
                         <label for="permissionName" class="form-label">Nombre del Permiso</label>
-                        <input type="text" id="permissionName" class="form-control" required>
+                        <input type="text" id="permissionName" class="form-control" maxlength="50" required>
                     </div>
                     <div class="mb-3">
                         <label for="permissionDescription" class="form-label">Descripción</label>
-                        <textarea id="permissionDescription" class="form-control" rows="3" required></textarea>
+                        <textarea id="permissionDescription" class="form-control" maxlength="1000" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Permiso</button>
                 </form>
@@ -37,6 +37,14 @@
     </div>
 
     <script>
+        // Validar la entrada del nombre del permiso
+        document.getElementById('permissionName').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
+
         document.getElementById('createPermissionForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const permissionName = document.getElementById('permissionName').value;
@@ -66,9 +74,8 @@
         });
 
         function redirectToPermissions() {
-        window.location.href = '../../Admin/consult/permissions.html';
+            window.location.href = '../../Admin/consult/permissions.html';
         }
-
     </script>
 </body>
 </html>

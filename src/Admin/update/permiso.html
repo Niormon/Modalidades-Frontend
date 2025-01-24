@@ -21,11 +21,11 @@
                 <form id="updatePermissionForm">
                     <div class="mb-3">
                         <label for="nombrePermiso" class="form-label">Nombre del Permiso</label>
-                        <input type="text" id="nombrePermiso" class="form-control" required>
+                        <input type="text" id="nombrePermiso" class="form-control" maxlength="50" required>
                     </div>
                     <div class="mb-3">
                         <label for="descripcionPermiso" class="form-label">Descripción</label>
-                        <textarea id="descripcionPermiso" class="form-control" rows="3" required></textarea>
+                        <textarea id="descripcionPermiso" class="form-control" maxlength="1000" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-success">Actualizar Permiso</button>
                     <button type="button" class="btn btn-secondary" onclick="goBack()">Cancelar</button>
@@ -87,6 +87,14 @@
                 console.error('Error:', error.message);
             }
         }
+
+        // Validar la entrada del nombre del permiso
+        document.getElementById('nombrePermiso').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
 
         function goBack() {
             window.history.back();
