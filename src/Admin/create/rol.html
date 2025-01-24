@@ -21,11 +21,11 @@
                 <form id="createRoleForm">
                     <div class="mb-3">
                         <label for="roleName" class="form-label">Nombre del Rol</label>
-                        <input type="text" id="roleName" class="form-control" required>
+                        <input type="text" id="roleName" class="form-control" maxlength="50" required>
                     </div>
                     <div class="mb-3">
                         <label for="roleDescription" class="form-label">Descripción</label>
-                        <textarea id="roleDescription" class="form-control" rows="3" required></textarea>
+                        <textarea id="roleDescription" class="form-control" maxlength="1000" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Crear Rol</button>
                 </form>
@@ -37,6 +37,14 @@
     </div>
 
     <script>
+        // Validación de entrada en el nombre del rol
+        document.getElementById('roleName').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
+
         document.getElementById('createRoleForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const roleName = document.getElementById('roleName').value;
@@ -66,9 +74,8 @@
         });
 
         function redirectToRoles() {
-        window.location.href = '../../Admin/consult/roles.html';
+            window.location.href = '../../Admin/consult/roles.html';
         }
-
     </script>
 </body>
 </html>

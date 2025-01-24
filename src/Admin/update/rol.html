@@ -21,11 +21,11 @@
                 <form id="updateRoleForm">
                     <div class="mb-3">
                         <label for="nombreRol" class="form-label">Nombre del Rol</label>
-                        <input type="text" id="nombreRol" class="form-control" required>
+                        <input type="text" id="nombreRol" class="form-control" maxlength="50" required>
                     </div>
                     <div class="mb-3">
                         <label for="descripcionRol" class="form-label">Descripción</label>
-                        <textarea id="descripcionRol" class="form-control" rows="3" required></textarea>
+                        <textarea id="descripcionRol" class="form-control" maxlength="1000" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-success">Actualizar Rol</button>
                     <button type="button" class="btn btn-secondary" onclick="goBack()">Cancelar</button>
@@ -87,6 +87,14 @@
                 console.error('Error:', error.message);
             }
         }
+
+        // Validación de entrada en el nombre del rol
+        document.getElementById('nombreRol').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
 
         function goBack() {
             window.history.back();
