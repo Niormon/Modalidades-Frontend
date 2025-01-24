@@ -21,13 +21,13 @@
                 <form id="createUserForm">
                     <div class="mb-3">
                         <label for="username" class="form-label">Nombre de Usuario</label>
-                        <input type="text" id="username" class="form-control" required>
+                        <input type="text" id="username" class="form-control" maxlength="50" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Contraseña</label>
                         <div class="input-group">
-                            <input type="password" id="password" class="form-control" required>
-                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                            <input type="password" id="password" class="form-control" maxlength="50" required>
+                            <button type="button" id="togglePassword" class="btn btn-outline-secondary">
                                 <i id="passwordIcon" class="bi bi-eye-slash"></i>
                             </button>
                         </div>
@@ -72,6 +72,31 @@
             }
         }
 
+        // Validación de entrada para username y password
+        document.getElementById('username').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function(event) {
+            const validCharacters = /^[a-zA-Z0-9ÁÉÍÓÚáéíóúÜüÑñ\s]*$/;
+            if (!validCharacters.test(event.target.value)) {
+                event.target.value = event.target.value.slice(0, -1);
+            }
+        });
+
+        // Alternar visibilidad de contraseña
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            const isPasswordHidden = passwordInput.type === 'password';
+
+            passwordInput.type = isPasswordHidden ? 'text' : 'password';
+            passwordIcon.className = isPasswordHidden ? 'bi bi-eye' : 'bi bi-eye-slash';
+        });
+
         document.getElementById('createUserForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -100,15 +125,6 @@
                 console.error('Error al crear usuario:', error.message);
                 alert('Error al crear el usuario');
             }
-        });
-
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const passwordInput = document.getElementById('password');
-            const passwordIcon = document.getElementById('passwordIcon');
-            const isPasswordHidden = passwordInput.type === 'password';
-
-            passwordInput.type = isPasswordHidden ? 'text' : 'password';
-            passwordIcon.className = isPasswordHidden ? 'bi bi-eye' : 'bi bi-eye-slash';
         });
 
         function redirectToAdmin() {
