@@ -301,7 +301,7 @@
         document.getElementById('logoutButton').addEventListener('click', async () => {
             const token = sessionStorage.getItem('token');
             if (!token) {
-                alert('No active session found. Redirecting to login.');
+                alert('Sesión activa no encontrada. Redirigiendo al inicio de sesión.');
                 window.location.href = '/index.html';
                 return;
             }
@@ -316,15 +316,17 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Logout request failed. Please try again.');
+                    throw new Error('Cierre de sesión fallido. Por favor intentar otra vez.');
                 }
 
                 sessionStorage.removeItem('token');
-                alert('You have been logged out successfully.');
+                alert('Se cerro la sesion correctamente.');
                 window.location.href = '/index.html';
             } catch (error) {
                 console.error('Logout failed:', error.message);
-                alert('An error occurred during logout. Please try again.');
+                alert('Un error ocurrio durante el cierre de sesión. Por favor utilice la cuenta en un unico equipo y pestaña.');
+                sessionStorage.removeItem('token');
+                window.location.href = '/index.html';
             }
         });
 
