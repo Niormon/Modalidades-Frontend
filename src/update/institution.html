@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Institution</title>
+    <title>Editar Institucion</title>
     <script src="../js/auth.js"></script>
     <script src="../../config.js"></script>
     <script src="/src/js/redirect.js"></script>
@@ -15,31 +15,31 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-warning text-white text-center">
-                <h2>Edit Institution</h2>
+                <h2>Editar Institucion</h2>
             </div>
             <div class="card-body">
                 <form id="editInstitutionForm">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Name</label>
+                        <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" maxlength="100" required>
                     </div>
                     <div class="mb-3">
-                        <label for="pais_ciudad" class="form-label">Country and City</label>
+                        <label for="pais_ciudad" class="form-label">Pais y Ciudad</label>
                         <input type="text" class="form-control" id="pais_ciudad" maxlength="100" required>
                     </div>
                     <div class="mb-3">
-                        <label for="direccion" class="form-label">Address</label>
+                        <label for="direccion" class="form-label">Direccion</label>
                         <input type="text" class="form-control" id="direccion" maxlength="250" required>
                     </div>
                     <div class="mb-3">
-                        <label for="numero_telefonico" class="form-label">Phone Number</label>
+                        <label for="numero_telefonico" class="form-label">Numero</label>
                         <input type="text" class="form-control" id="numero_telefonico" maxlength="15" required>
                     </div>
                     <div class="mb-3">
-                        <label for="correo" class="form-label">Email</label>
+                        <label for="correo" class="form-label">Correo</label>
                         <input type="email" class="form-control" id="correo" maxlength="100" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </form>
             </div>
         </div>
@@ -89,10 +89,10 @@
                     body: JSON.stringify(updatedData),
                 });
 
-                if (!response.ok) throw new Error('Failed to update institution details');
-                alert('Institution updated successfully');
+                if (!response.ok) throw new Error('No se pudieron actualizar los detalles de la institucion');
+                alert('Institucion actualizada correctamente');
             } catch (error) {
-                console.error('Error updating institution details:', error.message);
+                console.error('Error al actualizar los detalles de la institucion:', error.message);
             }
         });
 

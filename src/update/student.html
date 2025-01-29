@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Student</title>
+    <title>Editar Estudiante</title>
     <script src="../js/auth.js"></script>
     <script src="../../config.js"></script>
     <script src="/src/js/redirect.js"></script>
@@ -15,42 +15,42 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header bg-success text-white text-center">
-                <h2>Edit Student</h2>
+                <h2>Editar Estudiante</h2>
             </div>
             <div class="card-body">
                 <form id="editStudentForm">
                     <div class="mb-3">
-                        <label for="codigo" class="form-label">Code</label>
+                        <label for="codigo" class="form-label">Codigo</label>
                         <input type="text" class="form-control" id="codigo" maxlength="20" required>
                     </div>
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Name</label>
+                        <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" maxlength="100" required>
                     </div>
                     <div class="mb-3">
-                        <label for="cedula" class="form-label">ID</label>
+                        <label for="cedula" class="form-label">Cedula</label>
                         <input type="text" class="form-control" id="cedula" maxlength="20" required>
                     </div>
                     <div class="mb-3">
-                        <label for="correo" class="form-label">Email</label>
+                        <label for="correo" class="form-label">Correo</label>
                         <input type="email" class="form-control" id="correo" maxlength="100" required>
                     </div>
                     <div class="mb-3">
-                        <label for="numero_telefonico" class="form-label">Phone Number</label>
+                        <label for="numero_telefonico" class="form-label">Numero</label>
                         <input type="text" class="form-control" id="numero_telefonico" maxlength="15" required>
                     </div>
                     <div class="mb-3">
-                        <label for="fecha_nacimiento" class="form-label">Birth Date</label>
+                        <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
                         <input type="date" class="form-control" id="fecha_nacimiento" required>
                     </div>
                     <div class="mb-3">
-                        <label for="estudiante_graduado" class="form-label">Graduated</label>
+                        <label for="estudiante_graduado" class="form-label">Graduado</label>
                         <select class="form-control" id="estudiante_graduado">
-                            <option value="true">Yes</option>
+                            <option value="true">Si</option>
                             <option value="false">No</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </form>
             </div>
         </div>
@@ -139,10 +139,10 @@
                     body: JSON.stringify(updatedData),
                 });
 
-                if (!response.ok) throw new Error('Failed to update student details');
-                alert('Student updated successfully');
+                if (!response.ok) throw new Error('No se pudieron actualizar los detalles del estudiante');
+                alert('Estudiante actualizado correctamente');
             } catch (error) {
-                console.error('Error updating student details:', error.message);
+                console.error('Error al actualizar los detalles del estudiante:', error.message);
             }
         });
 
